@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Block A 2026 Full-Year Schedule</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #667085;
+    --line: #d8e2ef;
+    --head: #dce8f6;
+    --session-bg: #dff1e6;
+    --tasks-bg: #f1f3f5;
+    --admin-bg: #e7edf5;
+    --mdt-bg: #f3d7dc;
+    --lunch-bg: #f4ebcc;
+    --shadow: 0 10px 28px rgba(22, 50, 92, 0.08);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    background: linear-gradient(180deg, #f7fbff 0%, #f2f6fb 100%);
+    color: var(--ink);
+  }
+  .page { max-width: 1900px; margin: 0 auto; padding: 18px; }
+  .toolbar, .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 28px; }
+  .subtitle { color: var(--muted); margin-top: 6px; font-size: 15px; }
+  .btn {
+    border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 12px;
+    padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn:hover { background: #f8fbff; }
+  .meta { color: var(--muted); font-size: 14px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, minmax(180px,1fr)); gap: 12px; margin-top: 14px; }
+  .stat { background:#f8fbff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+  .stat .label { color:var(--muted); font-size:13px; margin-bottom:4px; }
+  .stat .value { font-size:24px; font-weight:700; }
+  .month { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+  .month > summary { list-style:none; cursor:pointer; padding: 16px 20px; font-size: 22px; font-weight: 700; color:#2b4f74; background: linear-gradient(180deg,#ffffff 0%,#f8fbff 100%); border-bottom:1px solid var(--line); }
+  .month > summary::-webkit-details-marker { display:none; }
+  .month > summary .count { color: var(--muted); font-size: 15px; font-weight: 500; margin-left: 10px; }
+  .month-body { padding: 14px; display:grid; gap:14px; }
+  .day-card { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+  .day-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding: 12px 14px; background:#f8fbff; border-bottom:1px solid var(--line); }
+  .day-title { font-size: 18px; font-weight: 700; color:#20496d; }
+  .day-sub { color: var(--muted); font-size: 14px; }
+  .day-table-wrap { overflow-x:auto; }
+  table.schedule { width:max-content; min-width:100%; border-collapse:separate; border-spacing:0; }
+  .schedule th, .schedule td { border-right:1px solid var(--line); border-bottom:1px solid var(--line); vertical-align: top; }
+  .schedule thead th { background: var(--head); padding: 10px 8px; text-align:center; min-width: 132px; }
+  .schedule .corner { min-width: 118px; position: sticky; left:0; z-index:4; }
+  .schedule .role-head { font-size: 13px; font-weight: 800; color:#36597e; letter-spacing:0.4px; }
+  .schedule .name-head { font-size: 16px; font-weight: 700; line-height: 1.25; direction: rtl; }
+  .schedule .time-col { background: #cfe0f4; font-weight: 800; font-size: 15px; padding: 12px 10px; position: sticky; left:0; z-index:3; min-width:118px; }
+  .slot-cell { width:132px; min-width:132px; padding: 8px; background:#fff; }
+  .slot { border-radius:14px; min-height: 92px; padding: 8px; display:flex; flex-direction:column; gap:8px; }
+  .slot.session { background: var(--session-bg); }
+  .slot.tasks { background: var(--tasks-bg); }
+  .slot.admin { background: var(--admin-bg); }
+  .slot.mdt { background: var(--mdt-bg); }
+  .slot.lunch { background: var(--lunch-bg); }
+  .chip-row { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .type-btn, .type-pill {
+    border-radius:999px; padding: 6px 11px; font-size: 12px; font-weight: 800;
+    border:1px solid rgba(60,84,105,0.14); background:#fff; color:#102a43;
+  }
+  .type-btn { cursor:pointer; }
+  .type-btn:hover { transform: translateY(-1px); }
+  .note { flex:1; min-height: 46px; font-size: 12px; line-height: 1.45; color:#506274; white-space: pre-wrap; }
+  .note[contenteditable="true"] { outline:none; }
+  .note.empty:before { content: attr(data-placeholder); color:#7b8b99; }
+  .readonly .note { min-height: 22px; }
+  .helper {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .totals { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; margin-top: 18px; }
+  .totals h2 { margin:0 0 12px; font-size:24px; }
+  table.summary { width:100%; border-collapse: collapse; overflow:hidden; border-radius: 14px; }
+  .summary th, .summary td { border:1px solid var(--line); padding:12px 12px; text-align:left; }
+  .summary th { background:#edf4fb; font-size:15px; }
+  .summary td.name { direction:rtl; font-weight:700; }
+  .summary tfoot td { background:#f8fbff; font-weight:800; }
+  .eff-good { color:#117a3e; font-weight:700; }
+  .eff-mid { color:#9a6700; font-weight:700; }
+  .eff-low { color:#b42318; font-weight:700; }
+  @media print {
+    body { background:#fff; }
+    .btn, .toolbar .meta { display:none !important; }
+    .page { max-width:none; padding:0; }
+    .toolbar, .panel, .month, .totals { box-shadow:none; }
+    .month { break-inside: avoid; }
+    .day-card { break-inside: avoid; }
+    .month > summary { border-bottom:1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="panel">
+    <h1>Block C — 2026 Full-Year Schedule</h1>
+    <div class="subtitle">Sunday 29 March 2026 to Thursday 31 December 2026</div>
+    <div class="stats-grid">
+      <div class="stat"><div class="label">Workdays in schedule</div><div class="value" id="workdayCount">0</div></div>
+      <div class="stat"><div class="label">Editable slots / day</div><div class="value" id="editableSlotsPerDay">0</div></div>
+      <div class="stat"><div class="label">Assigned sessions / year</div><div class="value" id="assignedYearCard">0</div></div>
+      <div class="stat"><div class="label">Assigned sessions up to date</div><div class="value" id="assignedToDateCard">0</div></div>
+      <div class="stat"><div class="label">Actual sessions given</div><div class="value" id="actualToDateCard">0</div></div>
+    </div>
+    <div class="helper">
+      Click any editable slot badge to cycle between Session, Clinic Tasks, and Admin. Actual sessions given are counted only when a slot is set to Session and has text entered in the notes area.
+    </div>
+  </section>
+
+  <section class="toolbar">
+    <button class="btn" id="expandAll">Expand all months</button>
+    <button class="btn" id="collapseAll">Collapse all months</button>
+    <button class="btn" id="printBtn">Print / Save PDF</button>
+    <button class="btn" id="clearBtn">Clear saved edits</button>
+    <span class="meta">Edits save automatically in this browser.</span>
+  </section>
+
+  <div id="monthsRoot"></div>
+
+  <section class="totals">
+    <h2>Totals</h2>
+    <table class="summary" id="summaryTable">
+      <thead>
+        <tr>
+          <th>Specialty</th>
+          <th>Specialist</th>
+          <th>Editable Slots / Day</th>
+          <th>Assigned Sessions / Year</th>
+          <th>Assigned Sessions Up To Date</th>
+          <th>Actual Sessions Given</th>
+          <th>Clinic Tasks Up To Date</th>
+          <th>Admin Up To Date</th>
+          <th>Total Editable Slots Up To Date</th>
+          <th>Efficiency %</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2">Block Total</td>
+          <td id="blockEditablePerDay"></td>
+          <td id="blockAssignedYear"></td>
+          <td id="blockAssignedToDate"></td>
+          <td id="blockActual"></td>
+          <td id="blockClinicToDate"></td>
+          <td id="blockAdminToDate"></td>
+          <td id="blockSlotsToDate"></td>
+          <td id="blockEfficiency"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+</div>
+
+<script>
+const STORAGE_KEY = 'blockC_schedule_2026_v7_session_tasks_admin';
+const staff = [{"role": "SLP", "name": "سمر عبد الحكيم يلديغ"}, {"role": "SLP", "name": "وفاء إبراهيم الحمر"}, {"role": "PSY", "name": "مرام نهى الشمري"}, {"role": "OT", "name": "فاطمة محمد الكثيري"}, {"role": "SPED", "name": "رائد ناصر الحربي"}, {"role": "SPED", "name": "ملاذ عبد المطيري"}, {"role": "SPED", "name": "أحلام مرعي العمري"}, {"role": "SPED", "name": "شروق جمال الدوسري"}, {"role": "SPED", "name": "أشواق محمد العويمر"}, {"role": "SPED", "name": "هلا عبدالله العمير"}, {"role": "ABA", "name": "ABA1"}, {"role": "ABA", "name": "ABA2"}, {"role": "ABA", "name": "ABA3"}, {"role": "ABA", "name": "ABA4"}, {"role": "ABA", "name": "ABA5"}];
+const times = ["8:00–8:45", "8:45–9:30", "9:30–10:15", "10:15–11:00", "11:00–11:45", "12:00–1:00", "1:00–1:45", "1:45–2:30", "2:30–3:15", "3:15–4:00"];
+const editableTimes = ["8:00–8:45", "8:45–9:30", "9:30–10:15", "10:15–11:00", "1:00–1:45", "1:45–2:30", "2:30–3:15", "3:15–4:00"];
+const template = {"8:00–8:45": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "8:45–9:30": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "9:30–10:15": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "10:15–11:00": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "11:00–11:45": ["MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT"], "12:00–1:00": ["Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch"], "1:00–1:45": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "1:45–2:30": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "2:30–3:15": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "3:15–4:00": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"]};
+const months = [{"year": 2026, "month": 3, "days": ["2026-03-29", "2026-03-30", "2026-03-31"]}, {"year": 2026, "month": 4, "days": ["2026-04-01", "2026-04-02", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30"]}, {"year": 2026, "month": 5, "days": ["2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-31"]}, {"year": 2026, "month": 6, "days": ["2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-28", "2026-06-29", "2026-06-30"]}, {"year": 2026, "month": 7, "days": ["2026-07-01", "2026-07-02", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-19", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30"]}, {"year": 2026, "month": 8, "days": ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-30", "2026-08-31"]}, {"year": 2026, "month": 9, "days": ["2026-09-01", "2026-09-02", "2026-09-03", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30"]}, {"year": 2026, "month": 10, "days": ["2026-10-01", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"]}, {"year": 2026, "month": 11, "days": ["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-08", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-15", "2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25", "2026-11-26", "2026-11-29", "2026-11-30"]}, {"year": 2026, "month": 12, "days": ["2026-12-01", "2026-12-02", "2026-12-03", "2026-12-06", "2026-12-07", "2026-12-08", "2026-12-09", "2026-12-10", "2026-12-13", "2026-12-14", "2026-12-15", "2026-12-16", "2026-12-17", "2026-12-20", "2026-12-21", "2026-12-22", "2026-12-23", "2026-12-24", "2026-12-27", "2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31"]}];
+const allWorkdays = months.flatMap(m => m.days);
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const cycleTypes = ['Session', 'Clinic Tasks', 'Admin'];
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+let state = loadState();
+
+function fmtNumber(n) { return Number(n).toLocaleString('en-US'); }
+
+function getTodayISO() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function workdaysElapsed() {
+  const today = getTodayISO();
+  return allWorkdays.filter(d => d <= today).length;
+}
+
+function isPastOrToday(dateISO) {
+  return dateISO <= getTodayISO();
+}
+
+function isEditableBaseType(baseType) {
+  return baseType !== 'MDT' && baseType !== 'Lunch';
+}
+
+function getCurrentType(dateISO, timeLabel, staffIndex) {
+  const key = `${dateISO}|${timeLabel}|${staffIndex}`;
+  const baseType = template[timeLabel][staffIndex];
+  const stored = state[key] || {};
+  if (!isEditableBaseType(baseType)) return baseType;
+  return stored.type || baseType;
+}
+
+function getCurrentNote(dateISO, timeLabel, staffIndex) {
+  const key = `${dateISO}|${timeLabel}|${staffIndex}`;
+  return (state[key] && state[key].note) || '';
+}
+
+function buildCellContent(dateISO, timeLabel, staffIndex) {
+  const key = `${dateISO}|${timeLabel}|${staffIndex}`;
+  const baseType = template[timeLabel][staffIndex];
+  const type = getCurrentType(dateISO, timeLabel, staffIndex);
+  const note = getCurrentNote(dateISO, timeLabel, staffIndex);
+  return { key, baseType, type, note };
+}
+
+function slotClass(type) {
+  if (type === 'Session') return 'session';
+  if (type === 'Clinic Tasks') return 'tasks';
+  if (type === 'Admin') return 'admin';
+  if (type === 'MDT') return 'mdt';
+  return 'lunch';
+}
+
+function placeholder(type) {
+  if (type === 'Session') return 'Patient / MRN / notes';
+  if (type === 'Clinic Tasks') return 'Clinic task / notes';
+  if (type === 'Admin') return 'Admin notes';
+  if (type === 'MDT') return 'MDT notes';
+  return '';
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>\"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+}
+
+function renderMonths() {
+  const root = document.getElementById('monthsRoot');
+  root.innerHTML = '';
+
+  months.forEach((monthObj, idx) => {
+    const details = document.createElement('details');
+    details.className = 'month';
+    if (idx === 0) details.open = true;
+
+    const summary = document.createElement('summary');
+    summary.innerHTML = `${monthNames[monthObj.month - 1]} ${monthObj.year} <span class="count">${monthObj.days.length} workdays</span>`;
+    details.appendChild(summary);
+
+    const body = document.createElement('div');
+    body.className = 'month-body';
+
+    monthObj.days.forEach(dateISO => {
+      const day = new Date(dateISO + 'T00:00:00');
+      const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
+      const dateText = day.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+      const dayCard = document.createElement('section');
+      dayCard.className = 'day-card';
+      dayCard.innerHTML = `
+        <div class="day-head">
+          <div>
+            <div class="day-title">${weekday}</div>
+            <div class="day-sub">${dateText}</div>
+          </div>
+          <div class="day-sub">Block C</div>
+        </div>
+      `;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'day-table-wrap';
+
+      const table = document.createElement('table');
+      table.className = 'schedule';
+
+      const thead = document.createElement('thead');
+      const trRole = document.createElement('tr');
+      trRole.innerHTML = '<th class="corner" rowspan="2">Time</th>' + staff.map(s => `<th><div class="role-head">${s.role}</div></th>`).join('');
+      const trName = document.createElement('tr');
+      trName.innerHTML = staff.map(s => `<th><div class="name-head">${s.name}</div></th>`).join('');
+      thead.appendChild(trRole);
+      thead.appendChild(trName);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      times.forEach(timeLabel => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="time-col">${timeLabel}</td>`;
+
+        staff.forEach((_, staffIndex) => {
+          const cell = buildCellContent(dateISO, timeLabel, staffIndex);
+          const editable = isEditableBaseType(cell.baseType);
+          const td = document.createElement('td');
+          td.className = 'slot-cell';
+          td.dataset.key = cell.key;
+          td.dataset.date = dateISO;
+          td.dataset.staff = String(staffIndex);
+          td.dataset.time = timeLabel;
+
+          const chipHtml = editable
+            ? `<button class="type-btn" type="button">${cell.type}</button>`
+            : `<span class="type-pill">${cell.type}</span>`;
+
+          td.innerHTML = `
+            <div class="slot ${slotClass(cell.type)} ${editable ? '' : 'readonly'}" data-type="${cell.type}">
+              <div class="chip-row">${chipHtml}</div>
+              <div class="note ${cell.note ? '' : 'empty'}" ${editable ? 'contenteditable="true"' : ''} data-placeholder="${placeholder(cell.type)}">${escapeHtml(cell.note)}</div>
+            </div>
+          `;
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      dayCard.appendChild(wrap);
+      body.appendChild(dayCard);
+    });
+
+    details.appendChild(body);
+    root.appendChild(details);
+  });
+
+  attachInteractions();
+  updateTotals();
+}
+
+function attachInteractions() {
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.onclick = () => {
+      const td = btn.closest('.slot-cell');
+      const key = td.dataset.key;
+      const current = btn.textContent.trim();
+      const idx = cycleTypes.indexOf(current);
+      const next = cycleTypes[(idx + 1) % cycleTypes.length];
+      state[key] = state[key] || {};
+      state[key].type = next;
+      saveState(state);
+      renderMonths();
+    };
+  });
+
+  document.querySelectorAll('.note[contenteditable="true"]').forEach(noteEl => {
+    noteEl.addEventListener('input', () => {
+      const td = noteEl.closest('.slot-cell');
+      const key = td.dataset.key;
+      const text = noteEl.innerText.trim();
+      state[key] = state[key] || {};
+      state[key].note = text;
+      saveState(state);
+      noteEl.classList.toggle('empty', !text);
+      updateTotals();
+    });
+  });
+}
+
+function updateTotals() {
+  const elapsed = workdaysElapsed();
+  const tbody = document.querySelector('#summaryTable tbody');
+  tbody.innerHTML = '';
+
+  const editableSlotsPerDay = editableTimes.length;
+  let blockEditablePerDay = 0;
+  let blockAssignedYear = 0;
+  let blockAssignedToDate = 0;
+  let blockActual = 0;
+  let blockClinicToDate = 0;
+  let blockAdminToDate = 0;
+  let blockSlotsToDate = 0;
+
+  staff.forEach((s, staffIndex) => {
+    const editableDay = editableSlotsPerDay;
+    const editableToDate = editableDay * elapsed;
+
+    let assignedYear = 0;
+    let assignedToDate = 0;
+    let actualToDate = 0;
+    let clinicToDate = 0;
+    let adminToDate = 0;
+
+    allWorkdays.forEach(dateISO => {
+      editableTimes.forEach(timeLabel => {
+        const type = getCurrentType(dateISO, timeLabel, staffIndex);
+        const note = getCurrentNote(dateISO, timeLabel, staffIndex).trim();
+
+        if (type === 'Session') {
+          assignedYear += 1;
+          if (isPastOrToday(dateISO)) {
+            assignedToDate += 1;
+            if (note) actualToDate += 1;
+          }
+        } else if (isPastOrToday(dateISO) && type === 'Clinic Tasks') {
+          clinicToDate += 1;
+        } else if (isPastOrToday(dateISO) && type === 'Admin') {
+          adminToDate += 1;
+        }
+      });
+    });
+
+    const eff = assignedToDate > 0 ? (actualToDate / assignedToDate) * 100 : 0;
+    const effClass = eff >= 95 ? 'eff-good' : eff >= 80 ? 'eff-mid' : 'eff-low';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${s.role}</td>
+      <td class="name">${s.name}</td>
+      <td>${fmtNumber(editableDay)}</td>
+      <td>${fmtNumber(assignedYear)}</td>
+      <td>${fmtNumber(assignedToDate)}</td>
+      <td>${fmtNumber(actualToDate)}</td>
+      <td>${fmtNumber(clinicToDate)}</td>
+      <td>${fmtNumber(adminToDate)}</td>
+      <td>${fmtNumber(editableToDate)}</td>
+      <td class="${effClass}">${eff.toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+
+    blockEditablePerDay += editableDay;
+    blockAssignedYear += assignedYear;
+    blockAssignedToDate += assignedToDate;
+    blockActual += actualToDate;
+    blockClinicToDate += clinicToDate;
+    blockAdminToDate += adminToDate;
+    blockSlotsToDate += editableToDate;
+  });
+
+  document.getElementById('workdayCount').textContent = fmtNumber(allWorkdays.length);
+  document.getElementById('editableSlotsPerDay').textContent = fmtNumber(blockEditablePerDay);
+  document.getElementById('assignedYearCard').textContent = fmtNumber(blockAssignedYear);
+  document.getElementById('assignedToDateCard').textContent = fmtNumber(blockAssignedToDate);
+  document.getElementById('actualToDateCard').textContent = fmtNumber(blockActual);
+
+  document.getElementById('blockEditablePerDay').textContent = fmtNumber(blockEditablePerDay);
+  document.getElementById('blockAssignedYear').textContent = fmtNumber(blockAssignedYear);
+  document.getElementById('blockAssignedToDate').textContent = fmtNumber(blockAssignedToDate);
+  document.getElementById('blockActual').textContent = fmtNumber(blockActual);
+  document.getElementById('blockClinicToDate').textContent = fmtNumber(blockClinicToDate);
+  document.getElementById('blockAdminToDate').textContent = fmtNumber(blockAdminToDate);
+  document.getElementById('blockSlotsToDate').textContent = fmtNumber(blockSlotsToDate);
+
+  const blockEff = blockAssignedToDate > 0 ? (blockActual / blockAssignedToDate) * 100 : 0;
+  const effTd = document.getElementById('blockEfficiency');
+  effTd.textContent = blockEff.toFixed(1) + '%';
+  effTd.className = blockEff >= 95 ? 'eff-good' : blockEff >= 80 ? 'eff-mid' : 'eff-low';
+}
+
+document.getElementById('expandAll').onclick = () => document.querySelectorAll('.month').forEach(d => d.open = true);
+document.getElementById('collapseAll').onclick = () => document.querySelectorAll('.month').forEach(d => d.open = false);
+document.getElementById('printBtn').onclick = () => window.print();
+document.getElementById('clearBtn').onclick = () => {
+  if (confirm('Clear all saved edits for this schedule?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    state = {};
+    renderMonths();
+  }
+};
+
+renderMonths();
+</script>
+</body>
+</html>
