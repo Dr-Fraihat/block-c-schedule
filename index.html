@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Block A 2026 Full-Year Schedule</title>
+<title>Block C 2026 Full-Year Schedule</title>
 <style>
   :root {
     --bg: #f4f7fb;
@@ -12,11 +12,13 @@
     --muted: #667085;
     --line: #d8e2ef;
     --head: #dce8f6;
-    --session-bg: #dff1e6;
-    --tasks-bg: #f1f3f5;
-    --admin-bg: #e7edf5;
-    --mdt-bg: #f3d7dc;
-    --lunch-bg: #f4ebcc;
+    --session-bg: #d9f0d8;
+    --tasks-bg: #dbe8f5;
+    --admin-bg: #edf1f5;
+    --noshow-bg: #f9dfb0;
+    --absent-bg: #e7d8ef;
+    --mdt-bg: #f1d4e3;
+    --lunch-bg: #f4e5c6;
     --shadow: 0 10px 28px rgba(22, 50, 92, 0.08);
     --radius: 18px;
   }
@@ -27,7 +29,7 @@
     background: linear-gradient(180deg, #f7fbff 0%, #f2f6fb 100%);
     color: var(--ink);
   }
-  .page { max-width: 1900px; margin: 0 auto; padding: 18px; }
+  .page { max-width: 100vw; margin: 0 auto; padding: 12px; }
   .toolbar, .panel {
     background: var(--card);
     border: 1px solid var(--line);
@@ -53,34 +55,48 @@
   .month > summary { list-style:none; cursor:pointer; padding: 16px 20px; font-size: 22px; font-weight: 700; color:#2b4f74; background: linear-gradient(180deg,#ffffff 0%,#f8fbff 100%); border-bottom:1px solid var(--line); }
   .month > summary::-webkit-details-marker { display:none; }
   .month > summary .count { color: var(--muted); font-size: 15px; font-weight: 500; margin-left: 10px; }
-  .month-body { padding: 14px; display:grid; gap:14px; }
+  .month-body { padding: 10px; display:grid; gap:10px; }
   .day-card { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
-  .day-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding: 12px 14px; background:#f8fbff; border-bottom:1px solid var(--line); }
-  .day-title { font-size: 18px; font-weight: 700; color:#20496d; }
-  .day-sub { color: var(--muted); font-size: 14px; }
+  .day-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding: 8px 10px; background:#f8fbff; border-bottom:1px solid var(--line); }
+  .day-title { font-size: 16px; font-weight: 700; color:#20496d; }
+  .day-sub { color: var(--muted); font-size: 12px; }
   .day-table-wrap { overflow-x:auto; }
   table.schedule { width:max-content; min-width:100%; border-collapse:separate; border-spacing:0; }
   .schedule th, .schedule td { border-right:1px solid var(--line); border-bottom:1px solid var(--line); vertical-align: top; }
-  .schedule thead th { background: var(--head); padding: 10px 8px; text-align:center; min-width: 132px; }
-  .schedule .corner { min-width: 118px; position: sticky; left:0; z-index:4; }
-  .schedule .role-head { font-size: 13px; font-weight: 800; color:#36597e; letter-spacing:0.4px; }
-  .schedule .name-head { font-size: 16px; font-weight: 700; line-height: 1.25; direction: rtl; }
-  .schedule .time-col { background: #cfe0f4; font-weight: 800; font-size: 15px; padding: 12px 10px; position: sticky; left:0; z-index:3; min-width:118px; }
-  .slot-cell { width:132px; min-width:132px; padding: 8px; background:#fff; }
-  .slot { border-radius:14px; min-height: 92px; padding: 8px; display:flex; flex-direction:column; gap:8px; }
+  .schedule thead th { background: var(--head); padding: 6px 4px; text-align:center; min-width: 86px; width:86px; }
+  .schedule .corner { min-width: 82px; width:82px; position: sticky; left:0; z-index:4; }
+  .schedule .role-head { font-size: 11px; font-weight: 800; color:#36597e; letter-spacing:0.2px; }
+  .schedule .name-head { font-size: 12px; font-weight: 700; line-height: 1.15; direction: rtl; }
+  .schedule .time-col { background: #cfe0f4; font-weight: 800; font-size: 12px; padding: 8px 6px; position: sticky; left:0; z-index:3; min-width:82px; width:82px; }
+  .slot-cell { width:86px; min-width:86px; padding: 4px; background:#fff; }
+  .slot { border-radius:10px; min-height: 56px; padding: 4px; display:flex; flex-direction:column; gap:4px; border:1px solid rgba(73,98,122,0.10); }
   .slot.session { background: var(--session-bg); }
   .slot.tasks { background: var(--tasks-bg); }
   .slot.admin { background: var(--admin-bg); }
+  .slot.noshow { background: var(--noshow-bg); }
+  .slot.absent { background: var(--absent-bg); }
   .slot.mdt { background: var(--mdt-bg); }
   .slot.lunch { background: var(--lunch-bg); }
   .chip-row { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-  .type-btn, .type-pill {
-    border-radius:999px; padding: 6px 11px; font-size: 12px; font-weight: 800;
+  .type-pill {
+    border-radius:999px; padding: 4px 7px; font-size: 10px; font-weight: 800;
     border:1px solid rgba(60,84,105,0.14); background:#fff; color:#102a43;
   }
-  .type-btn { cursor:pointer; }
-  .type-btn:hover { transform: translateY(-1px); }
-  .note { flex:1; min-height: 46px; font-size: 12px; line-height: 1.45; color:#506274; white-space: pre-wrap; }
+  .type-select {
+    width: 100%; border-radius: 8px; padding: 3px 5px; font-size: 10px; font-weight: 700;
+    border:1px solid rgba(60,84,105,0.18); background:rgba(255,255,255,0.85); color:#102a43;
+  }
+  .legend {
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;
+  }
+  .legend-item {
+    display:flex; align-items:center; gap:6px; padding:6px 10px;
+    border:1px solid var(--line); border-radius:999px; background:#fff; font-size:12px; color:#334155;
+  }
+  .legend-swatch {
+    width:14px; height:14px; border-radius:4px; border:1px solid rgba(73,98,122,0.15);
+  }
+  .note { flex:1; min-height: 28px; font-size: 10px; line-height: 1.25; color:#506274; white-space: pre-wrap; overflow-wrap:anywhere; }
   .note[contenteditable="true"] { outline:none; }
   .note.empty:before { content: attr(data-placeholder); color:#7b8b99; }
   .readonly .note { min-height: 22px; }
@@ -113,7 +129,7 @@
 <body>
 <div class="page">
   <section class="panel">
-    <h1>Block C — 2026 Full-Year Schedule</h1>
+    <h1>Block A — 2026 Full-Year Schedule</h1>
     <div class="subtitle">Sunday 29 March 2026 to Thursday 31 December 2026</div>
     <div class="stats-grid">
       <div class="stat"><div class="label">Workdays in schedule</div><div class="value" id="workdayCount">0</div></div>
@@ -123,7 +139,16 @@
       <div class="stat"><div class="label">Actual sessions given</div><div class="value" id="actualToDateCard">0</div></div>
     </div>
     <div class="helper">
-      Click any editable slot badge to cycle between Session, Clinic Tasks, and Admin. Actual sessions given are counted only when a slot is set to Session and has text entered in the notes area.
+      Use the drop-down in each editable slot to choose Session, Clinic Tasks, Admin, No Show, or Absent. Assigned sessions count slots marked Session or No Show. Actual sessions given count slots marked Session. Totals update automatically.
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--session-bg)"></span>Session</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--tasks-bg)"></span>Clinic Tasks</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--admin-bg)"></span>Admin</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--noshow-bg)"></span>No Show</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--absent-bg)"></span>Absent</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--mdt-bg)"></span>MDT</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--lunch-bg)"></span>Lunch</div>
     </div>
   </section>
 
@@ -150,6 +175,8 @@
           <th>Actual Sessions Given</th>
           <th>Clinic Tasks Up To Date</th>
           <th>Admin Up To Date</th>
+          <th>No Show Up To Date</th>
+          <th>Absent Up To Date</th>
           <th>Total Editable Slots Up To Date</th>
           <th>Efficiency %</th>
         </tr>
@@ -164,6 +191,8 @@
           <td id="blockActual"></td>
           <td id="blockClinicToDate"></td>
           <td id="blockAdminToDate"></td>
+          <td id="blockNoShowToDate"></td>
+          <td id="blockAbsentToDate"></td>
           <td id="blockSlotsToDate"></td>
           <td id="blockEfficiency"></td>
         </tr>
@@ -173,18 +202,18 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'blockC_schedule_2026_v7_session_tasks_admin';const staff = [
-  { role: "SLP", name: "سديم عبد الحكيم بابنجي", plannedPerDay: 4 },
-  { role: "SLP", name: "وفاء ابراهيم العطر", plannedPerDay: 6 },
-  { role: "PSY", name: "مرام نامي الشمري", plannedPerDay: 6 },
-  { role: "PSY", name: "فاطمة محمد الكثيري", plannedPerDay: 4 },
-  { role: "OT", name: "نايف ناصر العندس", plannedPerDay: 6 },
-  { role: "SPED", name: "ملحة عبيد المطيري", plannedPerDay: 6 },
-  { role: "SPED", name: "أحلام مرعي العمري", plannedPerDay: 6 },
-  { role: "SPED", name: "شروق جمال التويجري", plannedPerDay: 6 },
-  { role: "SPED", name: "أشواق محمد العويمر", plannedPerDay: 4 },
-  { role: "SPED", name: "هدية خلف المطيري", plannedPerDay: 6 },
-  { role: "SPED", name: "هلا عبدالله العمار", plannedPerDay: 6 },
+const STORAGE_KEY = 'blockA_schedule_2026_v7_session_tasks_admin';
+const staff = [
+  { role: "SLP", name: "عبدالعزيز محيي الدين النجيدي", plannedPerDay: 4 },
+  { role: "SLP", name: "رزان احمد البسام", plannedPerDay: 6 },
+  { role: "PSY", name: "سلمى سعد الشريف", plannedPerDay: 6 },
+  { role: "PSY", name: "سمر عوض العنزي", plannedPerDay: 4 },
+  { role: "OT", name: "أماني عبدالكريم الحربي", plannedPerDay: 6 },
+  { role: "SPED", name: "بلند إبراهيم المقرن", plannedPerDay: 6 },
+  { role: "SPED", name: "مرام سعيد الغامدي", plannedPerDay: 6 },
+  { role: "SPED", name: "عبير محمد السبيت", plannedPerDay: 6 },
+  { role: "SPED", name: "إيمان عثمان أبوعمارة", plannedPerDay: 4 },
+  { role: "SPED", name: "هيا منصور الفوزان", plannedPerDay: 6 },
   { role: "ABA", name: "ABA1", plannedPerDay: 6 },
   { role: "ABA", name: "ABA2", plannedPerDay: 6 },
   { role: "ABA", name: "ABA3", plannedPerDay: 6 },
@@ -197,7 +226,7 @@ const template = {"8:00–8:45": ["Session", "Session", "Session", "Session", "S
 const months = [{"year": 2026, "month": 3, "days": ["2026-03-29", "2026-03-30", "2026-03-31"]}, {"year": 2026, "month": 4, "days": ["2026-04-01", "2026-04-02", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30"]}, {"year": 2026, "month": 5, "days": ["2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-31"]}, {"year": 2026, "month": 6, "days": ["2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-28", "2026-06-29", "2026-06-30"]}, {"year": 2026, "month": 7, "days": ["2026-07-01", "2026-07-02", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-19", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30"]}, {"year": 2026, "month": 8, "days": ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-30", "2026-08-31"]}, {"year": 2026, "month": 9, "days": ["2026-09-01", "2026-09-02", "2026-09-03", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30"]}, {"year": 2026, "month": 10, "days": ["2026-10-01", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"]}, {"year": 2026, "month": 11, "days": ["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-08", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-15", "2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25", "2026-11-26", "2026-11-29", "2026-11-30"]}, {"year": 2026, "month": 12, "days": ["2026-12-01", "2026-12-02", "2026-12-03", "2026-12-06", "2026-12-07", "2026-12-08", "2026-12-09", "2026-12-10", "2026-12-13", "2026-12-14", "2026-12-15", "2026-12-16", "2026-12-17", "2026-12-20", "2026-12-21", "2026-12-22", "2026-12-23", "2026-12-24", "2026-12-27", "2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31"]}];
 const allWorkdays = months.flatMap(m => m.days);
 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const cycleTypes = ['Session', 'Clinic Tasks', 'Admin'];
+const editableOptions = ['Session', 'Clinic Tasks', 'Admin', 'No Show', 'Absent'];
 
 function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
@@ -253,6 +282,8 @@ function slotClass(type) {
   if (type === 'Session') return 'session';
   if (type === 'Clinic Tasks') return 'tasks';
   if (type === 'Admin') return 'admin';
+  if (type === 'No Show') return 'noshow';
+  if (type === 'Absent') return 'absent';
   if (type === 'MDT') return 'mdt';
   return 'lunch';
 }
@@ -261,6 +292,8 @@ function placeholder(type) {
   if (type === 'Session') return 'Patient / MRN / notes';
   if (type === 'Clinic Tasks') return 'Clinic task / notes';
   if (type === 'Admin') return 'Admin notes';
+  if (type === 'No Show') return 'No show notes';
+  if (type === 'Absent') return 'Absent notes';
   if (type === 'MDT') return 'MDT notes';
   return '';
 }
@@ -298,7 +331,7 @@ function renderMonths() {
             <div class="day-title">${weekday}</div>
             <div class="day-sub">${dateText}</div>
           </div>
-          <div class="day-sub">Block C</div>
+          <div class="day-sub">Block A</div>
         </div>
       `;
 
@@ -333,7 +366,7 @@ function renderMonths() {
           td.dataset.time = timeLabel;
 
           const chipHtml = editable
-            ? `<button class="type-btn" type="button">${cell.type}</button>`
+            ? `<select class="type-select">${editableOptions.map(opt => `<option value="${opt}" ${opt === cell.type ? 'selected' : ''}>${opt}</option>`).join('')}</select>`
             : `<span class="type-pill">${cell.type}</span>`;
 
           td.innerHTML = `
@@ -363,15 +396,12 @@ function renderMonths() {
 }
 
 function attachInteractions() {
-  document.querySelectorAll('.type-btn').forEach(btn => {
-    btn.onclick = () => {
-      const td = btn.closest('.slot-cell');
+  document.querySelectorAll('.type-select').forEach(sel => {
+    sel.onchange = () => {
+      const td = sel.closest('.slot-cell');
       const key = td.dataset.key;
-      const current = btn.textContent.trim();
-      const idx = cycleTypes.indexOf(current);
-      const next = cycleTypes[(idx + 1) % cycleTypes.length];
       state[key] = state[key] || {};
-      state[key].type = next;
+      state[key].type = sel.value;
       saveState(state);
       renderMonths();
     };
@@ -403,6 +433,8 @@ function updateTotals() {
   let blockActual = 0;
   let blockClinicToDate = 0;
   let blockAdminToDate = 0;
+  let blockNoShowToDate = 0;
+  let blockAbsentToDate = 0;
   let blockSlotsToDate = 0;
 
   staff.forEach((s, staffIndex) => {
@@ -414,22 +446,26 @@ function updateTotals() {
     let actualToDate = 0;
     let clinicToDate = 0;
     let adminToDate = 0;
+    let noShowToDate = 0;
+    let absentToDate = 0;
 
     allWorkdays.forEach(dateISO => {
       editableTimes.forEach(timeLabel => {
         const type = getCurrentType(dateISO, timeLabel, staffIndex);
-        const note = getCurrentNote(dateISO, timeLabel, staffIndex).trim();
 
-        if (type === 'Session') {
+        if (type === 'Session' || type === 'No Show') {
           assignedYear += 1;
           if (isPastOrToday(dateISO)) {
             assignedToDate += 1;
-            if (note) actualToDate += 1;
+            if (type === 'Session') actualToDate += 1;
+            if (type === 'No Show') noShowToDate += 1;
           }
         } else if (isPastOrToday(dateISO) && type === 'Clinic Tasks') {
           clinicToDate += 1;
         } else if (isPastOrToday(dateISO) && type === 'Admin') {
           adminToDate += 1;
+        } else if (isPastOrToday(dateISO) && type === 'Absent') {
+          absentToDate += 1;
         }
       });
     });
@@ -447,6 +483,8 @@ function updateTotals() {
       <td>${fmtNumber(actualToDate)}</td>
       <td>${fmtNumber(clinicToDate)}</td>
       <td>${fmtNumber(adminToDate)}</td>
+      <td>${fmtNumber(noShowToDate)}</td>
+      <td>${fmtNumber(absentToDate)}</td>
       <td>${fmtNumber(editableToDate)}</td>
       <td class="${effClass}">${eff.toFixed(1)}%</td>
     `;
@@ -458,6 +496,8 @@ function updateTotals() {
     blockActual += actualToDate;
     blockClinicToDate += clinicToDate;
     blockAdminToDate += adminToDate;
+    blockNoShowToDate += noShowToDate;
+    blockAbsentToDate += absentToDate;
     blockSlotsToDate += editableToDate;
   });
 
@@ -473,6 +513,8 @@ function updateTotals() {
   document.getElementById('blockActual').textContent = fmtNumber(blockActual);
   document.getElementById('blockClinicToDate').textContent = fmtNumber(blockClinicToDate);
   document.getElementById('blockAdminToDate').textContent = fmtNumber(blockAdminToDate);
+  document.getElementById('blockNoShowToDate').textContent = fmtNumber(blockNoShowToDate);
+  document.getElementById('blockAbsentToDate').textContent = fmtNumber(blockAbsentToDate);
   document.getElementById('blockSlotsToDate').textContent = fmtNumber(blockSlotsToDate);
 
   const blockEff = blockAssignedToDate > 0 ? (blockActual / blockAssignedToDate) * 100 : 0;
