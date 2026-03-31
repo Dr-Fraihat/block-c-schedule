@@ -173,8 +173,24 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'blockC_schedule_2026_v7_session_tasks_admin';
-const staff = [{"role": "SLP", "name": "سمر عبد الحكيم يلديغ"}, {"role": "SLP", "name": "وفاء إبراهيم الحمر"}, {"role": "PSY", "name": "مرام نهى الشمري"}, {"role": "OT", "name": "فاطمة محمد الكثيري"}, {"role": "SPED", "name": "رائد ناصر الحربي"}, {"role": "SPED", "name": "ملاذ عبد المطيري"}, {"role": "SPED", "name": "أحلام مرعي العمري"}, {"role": "SPED", "name": "شروق جمال الدوسري"}, {"role": "SPED", "name": "أشواق محمد العويمر"}, {"role": "SPED", "name": "هلا عبدالله العمير"}, {"role": "ABA", "name": "ABA1"}, {"role": "ABA", "name": "ABA2"}, {"role": "ABA", "name": "ABA3"}, {"role": "ABA", "name": "ABA4"}, {"role": "ABA", "name": "ABA5"}];
+const STORAGE_KEY = 'blockC_schedule_2026_v7_session_tasks_admin';const staff = [
+  { role: "SLP", name: "سديم عبد الحكيم بابنجي", plannedPerDay: 4 },
+  { role: "SLP", name: "وفاء ابراهيم العطر", plannedPerDay: 6 },
+  { role: "PSY", name: "مرام نامي الشمري", plannedPerDay: 6 },
+  { role: "PSY", name: "فاطمة محمد الكثيري", plannedPerDay: 4 },
+  { role: "OT", name: "نايف ناصر العندس", plannedPerDay: 6 },
+  { role: "SPED", name: "ملحة عبيد المطيري", plannedPerDay: 6 },
+  { role: "SPED", name: "أحلام مرعي العمري", plannedPerDay: 6 },
+  { role: "SPED", name: "شروق جمال التويجري", plannedPerDay: 6 },
+  { role: "SPED", name: "أشواق محمد العويمر", plannedPerDay: 4 },
+  { role: "SPED", name: "هدية خلف المطيري", plannedPerDay: 6 },
+  { role: "SPED", name: "هلا عبدالله العمار", plannedPerDay: 6 },
+  { role: "ABA", name: "ABA1", plannedPerDay: 6 },
+  { role: "ABA", name: "ABA2", plannedPerDay: 6 },
+  { role: "ABA", name: "ABA3", plannedPerDay: 6 },
+  { role: "ABA", name: "ABA4", plannedPerDay: 6 },
+  { role: "ABA", name: "ABA5", plannedPerDay: 6 }
+];
 const times = ["8:00–8:45", "8:45–9:30", "9:30–10:15", "10:15–11:00", "11:00–11:45", "12:00–1:00", "1:00–1:45", "1:45–2:30", "2:30–3:15", "3:15–4:00"];
 const editableTimes = ["8:00–8:45", "8:45–9:30", "9:30–10:15", "10:15–11:00", "1:00–1:45", "1:45–2:30", "2:30–3:15", "3:15–4:00"];
 const template = {"8:00–8:45": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "8:45–9:30": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "9:30–10:15": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "10:15–11:00": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "11:00–11:45": ["MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT", "MDT"], "12:00–1:00": ["Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch", "Lunch"], "1:00–1:45": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "1:45–2:30": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "2:30–3:15": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"], "3:15–4:00": ["Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session", "Session"]};
